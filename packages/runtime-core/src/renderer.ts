@@ -365,6 +365,7 @@ function baseCreateRenderer(
   // Note: functions inside this closure should use `const xxx = () => {}`
   // style in order to prevent being inlined by minifiers.
   const patch: PatchFn = (
+    // patch比较函数
     n1,
     n2,
     container,
@@ -379,6 +380,7 @@ function baseCreateRenderer(
       return
     }
 
+    // TODO: 看逻辑
     // patching & not same type, unmount old tree
     if (n1 && !isSameVNodeType(n1, n2)) {
       anchor = getNextHostNode(n1)
@@ -1364,7 +1366,7 @@ function baseCreateRenderer(
           }
 
           if (isAsyncWrapperVNode) {
-            ;(initialVNode.type as ComponentOptions).__asyncLoader!().then(
+            (initialVNode.type as ComponentOptions).__asyncLoader!().then(
               // note: we are moving the render call into an async callback,
               // which means it won't track dependencies - but it's ok because
               // a server-rendered async wrapper is already in resolved state
@@ -1619,8 +1621,8 @@ function baseCreateRenderer(
         // this could be either fully-keyed or mixed (some keyed some not)
         // presence of patchFlag means children are guaranteed to be arrays
         patchKeyedChildren(
-          c1 as VNode[],
-          c2 as VNodeArrayChildren,
+          c1 as VNode[], // 旧的VNode
+          c2 as VNodeArrayChildren, // 新的VNode
           container,
           anchor,
           parentComponent,
@@ -1714,15 +1716,16 @@ function baseCreateRenderer(
     c2 = c2 || EMPTY_ARR
     const oldLength = c1.length
     const newLength = c2.length
-    const commonLength = Math.min(oldLength, newLength)
+    const commonLength = Math.min(oldLength, newLength) // 取小的节点长度为公共长度
     let i
     for (i = 0; i < commonLength; i++) {
       const nextChild = (c2[i] = optimized
-        ? cloneIfMounted(c2[i] as VNode)
-        : normalizeVNode(c2[i]))
+        ? cloneIfMounted(c2[i] as VNode) // optimized为true，未挂载时直接挂载，已挂载则clone一个VNode出来
+        : normalizeVNode(c2[i])) // 创建新的VNode
       patch(
+        // 进行对比，四种情况
         c1[i],
-        nextChild,
+        nextChild, // 新的节点
         container,
         null,
         parentComponent,
@@ -1733,6 +1736,7 @@ function baseCreateRenderer(
       )
     }
     if (oldLength > newLength) {
+      // 比较完后，把多余的旧的全移除了
       // remove old
       unmountChildren(
         c1,
@@ -1743,6 +1747,7 @@ function baseCreateRenderer(
         commonLength
       )
     } else {
+      // 否则把新的都挂载好
       // mount new
       mountChildren(
         c2,
@@ -1937,12 +1942,15 @@ function baseCreateRenderer(
           }
         }
         if (newIndex === undefined) {
+          // 找不到对应的则移除该旧节点，这一步卸载了所有不需要的旧节点
           unmount(prevChild, parentComponent, parentSuspense, true)
         } else {
-          newIndexToOldIndexMap[newIndex - s2] = i + 1
+          newIndexToOldIndexMap[newIndex - s2] = i + 1 // 生成映射 newIndex从0开始，oldIndex从1开始
           if (newIndex >= maxNewIndexSoFar) {
+            // maxNewIndexSoFar 旧节点index对应的新节点index最大值
             maxNewIndexSoFar = newIndex
           } else {
+            // 表明有需要移动的节点，此时后面的旧节点对应的新节点index在maxNewIndexSofar之前，表明不在最长递增子序列中，需要移除
             moved = true
           }
           patch(
@@ -1962,7 +1970,7 @@ function baseCreateRenderer(
 
       // 5.3 move and mount
       // generate longest stable subsequence only when nodes have moved
-      const increasingNewIndexSequence = moved
+      const increasingNewIndexSequence = moved // 获取子序列顺序
         ? getSequence(newIndexToOldIndexMap)
         : EMPTY_ARR
       j = increasingNewIndexSequence.length - 1
@@ -1973,6 +1981,7 @@ function baseCreateRenderer(
         const anchor =
           nextIndex + 1 < l2 ? (c2[nextIndex + 1] as VNode).el : parentAnchor
         if (newIndexToOldIndexMap[i] === 0) {
+          // 挂载
           // mount new
           patch(
             null,
@@ -1986,11 +1995,13 @@ function baseCreateRenderer(
             optimized
           )
         } else if (moved) {
+          // 移动
           // move if:
           // There is no stable subsequence (e.g. a reverse)
           // OR current node is not among the stable sequence
           if (j < 0 || i !== increasingNewIndexSequence[j]) {
-            move(nextChild, container, anchor, MoveType.REORDER)
+            // 子序列的item都放入或未全放入且不在最长子序列中，移除
+            move(nextChild, container, anchor, MoveType.REORDER) // 移动节点
           } else {
             j--
           }
@@ -2338,9 +2349,10 @@ function baseCreateRenderer(
   let hydrate: ReturnType<typeof createHydrationFunctions>[0] | undefined
   let hydrateNode: ReturnType<typeof createHydrationFunctions>[1] | undefined
   if (createHydrationFns) {
-    ;[hydrate, hydrateNode] = createHydrationFns(
-      internals as RendererInternals<Node, Element>
-    )
+    ;[hydrate, hydrateNode] = createHydrationFns(internals as RendererInternals<
+      Node,
+      Element
+    >)
   }
 
   return {
@@ -2493,8 +2505,8 @@ export function traverseStaticChildren(n1: VNode, n2: VNode, shallow = false) {
 
 // https://en.wikipedia.org/wiki/Longest_increasing_subsequence
 function getSequence(arr: number[]): number[] {
-  const p = arr.slice()
-  const result = [0]
+  const p = arr.slice() // 拷贝新数组
+  const result = [0] // 最长递增子序列的索引数组，初始化时为0
   let i, j, u, v, c
   const len = arr.length
   for (i = 0; i < len; i++) {
