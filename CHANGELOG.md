@@ -1,3 +1,44 @@
+## [3.2.24](https://github.com/vuejs/vue-next/compare/v3.2.23...v3.2.24) (2021-12-06)
+
+
+### Bug Fixes
+
+* **compat:** maintain compatConfig option in legacy functional comp ([#4974](https://github.com/vuejs/vue-next/issues/4974)) ([ee97cf5](https://github.com/vuejs/vue-next/commit/ee97cf5a4db9e4f135d8eb25aff725eb37363675))
+* **compiler-dom:** avoid bailing stringification on setup const bindings ([29beda7](https://github.com/vuejs/vue-next/commit/29beda7c6f69f79e65f0111cb2d2b8d57d8257bb))
+* **compiler-sfc:** make asset url imports stringifiable ([87c73e9](https://github.com/vuejs/vue-next/commit/87c73e99d6aed0771f8c955ca9d5188ec22c90e7))
+* **package:** ensure ref-macros export is recognized by vue-tsc ([#5003](https://github.com/vuejs/vue-next/issues/5003)) ([f855269](https://github.com/vuejs/vue-next/commit/f8552697fbbdbd444d8322c6b6adeb48cc0b5617))
+* **runtime-core:** handle initial undefined attrs ([#5017](https://github.com/vuejs/vue-next/issues/5017)) ([6d887aa](https://github.com/vuejs/vue-next/commit/6d887aaf591cfa05d5fea978bbd87e3e502bfa86)), closes [#5016](https://github.com/vuejs/vue-next/issues/5016)
+* **types/reactivity:** export ShallowRef type ([#5026](https://github.com/vuejs/vue-next/issues/5026)) ([523b4b7](https://github.com/vuejs/vue-next/commit/523b4b78f5d2e11f1822e09c324a854c790a7863)), closes [#5205](https://github.com/vuejs/vue-next/issues/5205)
+
+
+### Features
+
+* **types/script-setup:** add generic type to defineExpose ([#5035](https://github.com/vuejs/vue-next/issues/5035)) ([34985fe](https://github.com/vuejs/vue-next/commit/34985fee6b23018b6eb6322239db6165c1b0e273))
+
+
+
+## [3.2.23](https://github.com/vuejs/vue-next/compare/v3.2.22...v3.2.23) (2021-11-26)
+
+
+### Bug Fixes
+
+* **reactivity:** retain readonly proxies when setting as reactive property ([d145128](https://github.com/vuejs/vue-next/commit/d145128ab400f4563eb3727626d0942ea5f4980a)), closes [#4986](https://github.com/vuejs/vue-next/issues/4986)
+* **runtime-core:** fix component public instance has check for accessed non-existent properties ([aac0466](https://github.com/vuejs/vue-next/commit/aac0466cb8819fd132fbcc9c4d3e1014c14e2ad8)), closes [#4962](https://github.com/vuejs/vue-next/issues/4962)
+* **runtime-core:** handle error in async KeepAlive hooks ([#4978](https://github.com/vuejs/vue-next/issues/4978)) ([820a143](https://github.com/vuejs/vue-next/commit/820a14345798edc0ab673bae8ce3181e479d9cca))
+* **runtime-dom:** fix option element value patching edge case ([#4959](https://github.com/vuejs/vue-next/issues/4959)) ([89b2f92](https://github.com/vuejs/vue-next/commit/89b2f924fc82d7f71dcb8ffbacb386fd5cf9ade2)), closes [#4956](https://github.com/vuejs/vue-next/issues/4956)
+* **runtime-dom:** patchDOMProps should not set _value if element is custom element ([#4839](https://github.com/vuejs/vue-next/issues/4839)) ([1701bf3](https://github.com/vuejs/vue-next/commit/1701bf3968f001dd3a2bc9f41e3e7e0f1b13e922))
+* **types:** export ref-macros.d.ts ([1245709](https://github.com/vuejs/vue-next/commit/124570973df4ddfdd38e43bf1e92b9710321e5d9))
+* **types:** fix propType<any> type inference ([#4985](https://github.com/vuejs/vue-next/issues/4985)) ([3c449cd](https://github.com/vuejs/vue-next/commit/3c449cd408840d35987fb32b39737fbf093809d6)), closes [#4983](https://github.com/vuejs/vue-next/issues/4983)
+* **types:** scrip-setup+ts: ensure proper handling of `null` as default prop value. ([#4979](https://github.com/vuejs/vue-next/issues/4979)) ([f2d2d7b](https://github.com/vuejs/vue-next/commit/f2d2d7b2d236f256531ae9ad2048bd939c92d834)), closes [#4868](https://github.com/vuejs/vue-next/issues/4868)
+
+
+### Features
+
+* **compiler-sfc:** export resolveTemplateUsageCheckString for HMR plugin use ([#4908](https://github.com/vuejs/vue-next/issues/4908)) ([c61baac](https://github.com/vuejs/vue-next/commit/c61baac75a03b938bc728a8de961ba93736a0ff6))
+* **compiler-sfc:** expose properties for more accurate HMR ([68c45e7](https://github.com/vuejs/vue-next/commit/68c45e73da902e715df9614800a7ab43d6579198)), closes [#4358](https://github.com/vuejs/vue-next/issues/4358) [#4908](https://github.com/vuejs/vue-next/issues/4908)
+
+
+
 ## [3.2.22](https://github.com/vuejs/vue-next/compare/v3.2.21...v3.2.22) (2021-11-15)
 
 
