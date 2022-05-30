@@ -7,7 +7,8 @@ import {
   EffectScope,
   markRaw,
   track,
-  TrackOpTypes
+  TrackOpTypes,
+  ReactiveEffect
 } from '@vue/reactivity'
 import {
   ComponentPublicInstance,
@@ -225,6 +226,10 @@ export interface ComponentInternalInstance {
    */
   subTree: VNode
   /**
+   * Render effect instance
+   */
+  effect: ReactiveEffect
+  /**
    * Bound effect runner to be passed to schedulers
    */
   update: SchedulerJob
@@ -435,6 +440,15 @@ export interface ComponentInternalInstance {
    * @internal
    */
   [LifecycleHooks.SERVER_PREFETCH]: LifecycleHook<() => Promise<unknown>>
+
+  /**
+   * For caching bound $forceUpdate on public proxy access
+   */
+  f?: () => void
+  /**
+   * For caching bound $nextTick on public proxy access
+   */
+  n?: () => Promise<void>
 }
 
 const emptyAppContext = createAppContext()
@@ -460,6 +474,7 @@ export function createComponentInstance(
     root: null!, // to be immediately set
     next: null,
     subTree: null!, // will be set synchronously right after creation
+    effect: null!,
     update: null!, // will be set synchronously right after creation
     scope: new EffectScope(true /* detached */),
     render: null,
@@ -471,7 +486,7 @@ export function createComponentInstance(
     accessCache: null!,
     renderCache: [],
 
-    // local resovled assets
+    // local resolved assets
     components: null,
     directives: null,
 
@@ -648,7 +663,6 @@ function setupStatefulComponent(
 
     if (isPromise(setupResult)) {
       setupResult.then(unsetCurrentInstance, unsetCurrentInstance)
-
       if (isSSR) {
         // return the promise so server-renderer can wait on it
         return setupResult
@@ -662,6 +676,15 @@ function setupStatefulComponent(
         // async setup returned Promise.
         // bail here and wait for re-entry.
         instance.asyncDep = setupResult
+        if (__DEV__ && !instance.suspense) {
+          const name = Component.name ?? 'Anonymous'
+          warn(
+            `Component <${name}>: setup function returned a promise, but no ` +
+              `<Suspense> boundary was found in the parent component tree. ` +
+              `A component with async setup() must be nested in a <Suspense> ` +
+              `in order to be rendered.`
+          )
+        }
       } else if (__DEV__) {
         warn(
           `setup() returned a Promise, but the version of Vue you are using ` +
@@ -758,7 +781,7 @@ export function finishComponentSetup(
   // template / render function normalization
   // could be already set when returned from setup()
   if (!instance.render) {
-    // only do on-the-fly compile if not in SSR - SSR on-the-fly compliation
+    // only do on-the-fly compile if not in SSR - SSR on-the-fly compilation
     // is done by server-renderer
     if (!isSSR && compile && !Component.render) {
       const template =
